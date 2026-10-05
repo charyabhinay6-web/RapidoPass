@@ -1,6 +1,7 @@
 import random
 from datetime import date
 
+
 # ---------------- Parent Class ----------------
 class Person:
     def __init__(self, name, age, phone, is_student):
@@ -12,38 +13,37 @@ class Person:
 
 # ---------------- Child Class ----------------
 class RapidoPass(Person):
+    PLAN_PRICES = {
+        "monthly": 1200,
+        "quarterly": 3300
+    }
+
+    VEHICLE_DISCOUNTS = {
+        "bike": 0.15,
+        "auto": 0.10,
+        "car": 0.00
+    }
+
     def __init__(self, name, age, phone, is_student, vehicle_type, plan_type):
-        # Explicit call to parent constructor (NO super())
-        Person.__init__(self, name, age, phone, is_student)
+        super().__init__(name, age, phone, is_student)
 
         self.vehicle_type = vehicle_type
         self.plan_type = plan_type
         self.user_id = self.generate_user_id()
         self.amount = self.calculate_amount()
+        self.issue_date = date.today()
 
     def generate_user_id(self):
         return "RPD" + str(random.randint(100000, 999999))
 
     def calculate_amount(self):
-        # Base price
-        if self.plan_type.lower() == "monthly":
-            amount = 1200
-        elif self.plan_type.lower() == "quarterly":
-            amount = 3300
-        else:
-            amount = 0
+        amount = self.PLAN_PRICES[self.plan_type.lower()]
 
-        # Vehicle based discount
-        if self.vehicle_type.lower() == "bike":
-            amount *= 0.85   # 15% discount
-        elif self.vehicle_type.lower() == "auto":
-            amount *= 0.90   # 10% discount
-        elif self.vehicle_type.lower() == "car":
-            amount *= 1.00   # no discount
+        vehicle_discount = self.VEHICLE_DISCOUNTS[self.vehicle_type.lower()]
+        amount *= (1 - vehicle_discount)
 
-        # Student discount
         if self.is_student:
-            amount *= 0.80   # 20% discount
+            amount *= 0.80
 
         return int(amount)
 
@@ -57,47 +57,117 @@ class RapidoPass(Person):
         print(f"Vehicle Type   : {self.vehicle_type}")
         print(f"Plan Type      : {self.plan_type}")
         print(f"Amount Paid    : ₹{self.amount}")
-        print(f"Issue Date     : {date.today()}")
+        print(f"Issue Date     : {self.issue_date}")
         print("========================================")
-        print("✔ Pass generated successfully")
-        print("✔ Saves monthly expenses and time 🚀")
+        print("Pass generated successfully!")
+        print("Saves monthly expenses and time.")
+
+
+# ---------------- Input Functions ----------------
+def get_name():
+    while True:
+        name = input("Enter Name: ").strip()
+
+        if name and all(char.isalpha() or char.isspace() for char in name):
+            return name
+
+        print("Please enter a valid name.")
+
+
+def get_age():
+    while True:
+        try:
+            age = int(input("Enter Age: "))
+
+            if 1 <= age <= 100:
+                return age
+
+            print("Age must be between 1 and 100.")
+
+        except ValueError:
+            print("Please enter a valid age.")
+
+
+def get_phone():
+    while True:
+        phone = input("Enter Phone Number: ").strip()
+
+        if phone.isdigit() and len(phone) == 10:
+            return phone
+
+        print("Please enter a valid 10-digit phone number.")
+
+
+def get_student_status():
+    while True:
+        choice = input("Are you a student? (yes/no): ").strip().lower()
+
+        if choice == "yes":
+            return True
+        elif choice == "no":
+            return False
+
+        print("Please enter yes or no.")
+
+
+def get_vehicle_type():
+    while True:
+        print("\nSelect Vehicle Type:")
+        print("1. Bike")
+        print("2. Auto")
+        print("3. Car")
+
+        choice = input("Enter choice (1/2/3): ").strip()
+
+        if choice == "1":
+            return "Bike"
+        elif choice == "2":
+            return "Auto"
+        elif choice == "3":
+            return "Car"
+
+        print("Invalid choice. Please select 1, 2, or 3.")
+
+
+def get_plan_type():
+    while True:
+        print("\nSelect Pass Plan:")
+        print("1. Monthly")
+        print("2. Quarterly")
+
+        choice = input("Enter choice (1/2): ").strip()
+
+        if choice == "1":
+            return "Monthly"
+        elif choice == "2":
+            return "Quarterly"
+
+        print("Invalid choice. Please select 1 or 2.")
 
 
 # ---------------- Main Program ----------------
 def main():
     print("====== RAPIDO PASS REGISTRATION ======")
 
-    name = input("Enter Name: ")
-    age = int(input("Enter Age: "))
-    phone = input("Enter Phone Number: ")
-    is_student = input("Are you a student? (yes/no): ").lower() == "yes"
-
-    print("\nSelect Vehicle Type:")
-    print("1. Bike")
-    print("2. Auto")
-    print("3. Car")
-    vehicle_choice = input("Enter choice (1/2/3): ")
-
-    if vehicle_choice == "1":
-        vehicle_type = "Bike"
-    elif vehicle_choice == "2":
-        vehicle_type = "Auto"
-    else:
-        vehicle_type = "Car"
-
-    print("\nSelect Pass Plan:")
-    print("1. Monthly")
-    print("2. Quarterly")
-    plan_choice = input("Enter choice (1/2): ")
-    plan_type = "Monthly" if plan_choice == "1" else "Quarterly"
+    name = get_name()
+    age = get_age()
+    phone = get_phone()
+    is_student = get_student_status()
+    vehicle_type = get_vehicle_type()
+    plan_type = get_plan_type()
 
     pass_obj = RapidoPass(
-        name, age, phone, is_student, vehicle_type, plan_type
+        name,
+        age,
+        phone,
+        is_student,
+        vehicle_type,
+        plan_type
     )
 
     pass_obj.display_digital_pass()
 
 
-# Run Program
+# ---------------- Run Program ----------------
 if __name__ == "__main__":
     main()
